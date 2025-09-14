@@ -77,7 +77,20 @@ const Dashboard = () => {
         date: selectedDate,
         summary: ''
       });
-      fetchDayRecord();
+      
+      // After ending the day, automatically move to the next day
+      const currentDate = new Date(selectedDate);
+      const nextDay = new Date(currentDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      const nextDayString = nextDay.toISOString().split('T')[0];
+      
+      // Clear the current day record state first
+      setDayRecord(null);
+      
+      // Set the next day as selected date
+      setSelectedDate(nextDayString);
+      
+      // The useEffect will automatically fetch new data for the next day
     } catch (error) {
       console.error('Error ending day:', error);
       alert('Error ending day: ' + (error instanceof Error ? error.message : 'Unknown error'));
@@ -111,7 +124,10 @@ const Dashboard = () => {
               <input
                 type="date"
                 value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
+                onChange={(e) => {
+                  setDayRecord(null); // Clear day record when changing dates
+                  setSelectedDate(e.target.value);
+                }}
                 className="px-3 py-2 bg-bg-secondary border border-border-color rounded text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
               />
               
