@@ -4,9 +4,17 @@ import TaskCard from '../components/TaskCard';
 import AddTaskForm from '../components/AddTaskForm';
 import { Task, DayRecord } from '../types';
 
+// Utility function to format date as YYYY-MM-DD in local timezone
+const formatDateLocal = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const Dashboard = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(formatDateLocal(new Date()));
   const [dayRecord, setDayRecord] = useState<DayRecord | null>(null);
   const [loading, setLoading] = useState(false);
   const [endDayLoading, setEndDayLoading] = useState(false);
@@ -82,7 +90,7 @@ const Dashboard = () => {
       const currentDate = new Date(selectedDate);
       const nextDay = new Date(currentDate);
       nextDay.setDate(nextDay.getDate() + 1);
-      const nextDayString = nextDay.toISOString().split('T')[0];
+      const nextDayString = formatDateLocal(nextDay);
       
       // Clear the current day record state first
       setDayRecord(null);
@@ -99,7 +107,7 @@ const Dashboard = () => {
     }
   };
 
-  const isToday = selectedDate === new Date().toISOString().split('T')[0];
+  const isToday = selectedDate === formatDateLocal(new Date());
   const isEndedDay = dayRecord?.isEnded;
 
   const getProductivityStats = () => {
