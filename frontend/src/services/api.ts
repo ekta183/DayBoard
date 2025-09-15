@@ -49,9 +49,9 @@ const api = {
 
     getByDate: (date: string) => api.request(`/tasks?date=${date}`),
 
-    updateProgress: (taskId: string, progressData: { completedItems: number; note: string }) => api.request(`/tasks/${taskId}/progress`, {
+    update: (taskId: string, taskData: { title?: string; description?: string; totalItems?: number; completedItems?: number; note?: string }) => api.request(`/tasks/${taskId}`, {
       method: 'PUT',
-      body: JSON.stringify(progressData),
+      body: JSON.stringify(taskData),
     }),
 
     delete: (taskId: string) => api.request(`/tasks/${taskId}`, {

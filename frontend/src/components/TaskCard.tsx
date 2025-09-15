@@ -1,17 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Task } from '../types';
+import { Edit, Check, Settings, Trash2, MessageSquare, SquarePen } from 'lucide-react';
 
 interface TaskCardProps {
   task: Task;
-  onUpdateProgress: (taskId: string, progressData: { completedItems: number; note: string }) => Promise<void>;
+  onUpdateTask: (taskId: string, taskData: { title?: string; description?: string; totalItems?: number; completedItems?: number; note?: string }) => Promise<void>;
   onDelete: (taskId: string) => void;
   isEndedDay: boolean;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateProgress, onDelete, isEndedDay }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateTask, onDelete, isEndedDay }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingNote, setIsEditingNote] = useState(false);
   const [completedItems, setCompletedItems] = useState(task.completedItems);
   const [note, setNote] = useState(task.note || '');
+  const [currentTitle, setCurrentTitle] = useState(task.title);
+  const [currentDescription, setCurrentDescription] = useState(task.description || '');
+  const [currentTotalItems, setCurrentTotalItems] = useState(task.totalItems);
   const [loading, setLoading] = useState(false);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -41,14 +46,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateProgress, onDelete, i
 
   const autoSave = async () => {
     if (completedItems === task.completedItems && note === (task.note || '')) return;
-    
+
     setIsAutoSaving(true);
     try {
-      await onUpdateProgress(task._id, { completedItems, note });
+      await onUpdateTask(task._id, { completedItems, note });
       setLastUpdateTime(new Date());
-      
+
       // Show celebration for milestones
-      if (completedItems === task.totalItems && !task.isCompleted) {
+      if (completedItems === currentTotalItems && !task.isCompleted) {
         setShowCelebration(true);
         setTimeout(() => setShowCelebration(false), 3000);
       }
@@ -62,7 +67,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateProgress, onDelete, i
   const handleSave = async () => {
     setLoading(true);
     try {
-      await onUpdateProgress(task._id, { completedItems, note });
+      await onUpdateTask(task._id, {
+        title: currentTitle,
+        description: currentDescription,
+        totalItems: currentTotalItems
+      });
       setIsEditing(false);
       setLastUpdateTime(new Date());
     } catch (error) {
@@ -73,8 +82,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateProgress, onDelete, i
   };
 
   const handleCancel = () => {
-    setCompletedItems(task.completedItems);
-    setNote(task.note || '');
+    setCurrentTitle(task.title);
+    setCurrentDescription(task.description || '');
+    setCurrentTotalItems(task.totalItems);
     setIsEditing(false);
   };
 
@@ -120,15 +130,19 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateProgress, onDelete, i
   };
 
   const getProgressColor = () => {
-    if (task.completionPercentage >= 80) return 'bg-productive';
-    if (task.completionPercentage >= 50) return 'bg-moderate';
-    return 'bg-not-productive';
+    if (task.completionPercentage >= 80) return '#059669';
+    if (task.completionPercentage >= 50) return '#d97706';
+    return '#dc2626';
   };
 
   const getProgressTextColor = () => {
-    if (task.completionPercentage >= 80) return 'text-productive-bg';
-    if (task.completionPercentage >= 50) return 'text-moderate-bg';
-    return 'text-not-productive-bg';
+    return '#ffffff';
+  };
+
+  const getProgressGradient = () => {
+    if (task.completionPercentage >= 80) return 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
+    if (task.completionPercentage >= 50) return 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)';
+    return 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)';
   };
 
   // Smart features and contextual help
@@ -198,86 +212,146 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateProgress, onDelete, i
   };
 
   return (
-    <div 
+    <div
       ref={taskRef}
-      className={`card hover-lift animate-fade-in relative ${getUrgencyColor()} ${showCelebration ? 'animate-pulse' : ''}`}
+      className={`card hover-lift animate-fade-in ${showCelebration ? 'animate-pulse' : ''}`}
+      style={{ position: 'relative', borderColor: getUrgencyColor() === 'border-red-500' ? '#ef4444' : getUrgencyColor() === 'border-yellow-500' ? '#f59e0b' : 'transparent' }}
       onTouchStart={handleTouchStart}
     >
       {/* Celebration overlay */}
       {showCelebration && (
-        <div className="absolute inset-0 bg-green-500 bg-opacity-20 rounded-lg flex items-center justify-center z-10">
-          <div className="text-4xl animate-bounce">🎉</div>
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(16, 185, 129, 0.2)',
+          borderRadius: '0.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10
+        }}>
+          <div style={{ fontSize: '2.25rem', animation: 'bounce 1s infinite' }}>🎉</div>
         </div>
       )}
       
       {/* Auto-save indicator */}
       {isAutoSaving && (
-        <div className="absolute top-2 right-2 flex items-center space-x-1 text-xs text-accent">
-          <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
+        <div style={{
+          position: 'absolute',
+          top: '0.5rem',
+          right: '0.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.25rem',
+          fontSize: '0.75rem',
+          color: 'var(--text-accent)'
+        }}>
+          <div style={{
+            width: '0.5rem',
+            height: '0.5rem',
+            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+            borderRadius: '50%',
+            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          }}></div>
           <span>Saving...</span>
         </div>
       )}
       
       {/* Last update time */}
       {lastUpdateTime && (
-        <div className="absolute top-2 left-2 text-xs text-text-subtle">
+        <div style={{
+          position: 'absolute',
+          top: '0.5rem',
+          left: '0.5rem',
+          fontSize: '0.75rem',
+          color: 'var(--text-subtle)'
+        }}>
           {getTimeAwareness()}
         </div>
       )}
 
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-start space-x-3 flex-1">
-          <div className="flex-shrink-0 mt-1">
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: '1rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flex: 1 }}>
+          <div style={{ flexShrink: 0, marginTop: '0.25rem' }}>
             {task.isCompleted ? (
-              <div className="w-6 h-6 bg-productive rounded-full flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+              <div style={{
+                width: '1.5rem',
+                height: '1.5rem',
+                background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Check style={{ width: '1rem', height: '1rem', color: 'white' }} />
               </div>
             ) : (
-              <div className="w-6 h-6 border-2 border-border-secondary rounded-full flex items-center justify-center">
-                <div className={`w-3 h-3 rounded-full ${getProgressColor()}`}></div>
+              <div style={{
+                width: '1.5rem',
+                height: '1.5rem',
+                border: '2px solid var(--border-secondary)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div style={{
+                  width: '0.75rem',
+                  height: '0.75rem',
+                  borderRadius: '50%',
+                  backgroundColor: getProgressColor()
+                }}></div>
               </div>
             )}
           </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-text-primary mb-1">{task.title}</h3>
-            {task.description && (
-              <p className="text-text-muted text-sm leading-relaxed">{task.description}</p>
+          <div style={{ flex: 1 }}>
+            <h3 className="text-lg font-semibold text-text-primary mb-1">{currentTitle}</h3>
+            {currentDescription && (
+              <p className="text-text-muted text-sm leading-relaxed">{currentDescription}</p>
             )}
             {/* Progress tip */}
-            <div className="mt-2 text-xs text-accent font-medium">
+            <div style={{
+              marginTop: '0.5rem',
+              fontSize: '0.75rem',
+              color: 'var(--text-accent)',
+              fontWeight: '500'
+            }}>
               {getProgressTip()}
             </div>
           </div>
         </div>
         {!isEndedDay && (
-          <div className="flex space-x-2 ml-4">
+          <div style={{ display: 'flex', gap: '0.5rem', marginLeft: '1rem' }}>
             <button
               onClick={() => setShowQuickActions(!showQuickActions)}
-              className="btn btn-ghost text-xs px-3 py-1"
+              className="btn btn-ghost"
+              style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem' }}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-              </svg>
+              <Settings style={{ width: '1rem', height: '1rem' }} />
               Quick
             </button>
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="btn btn-ghost text-xs px-3 py-1"
+              className="btn btn-ghost"
+              style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem' }}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
+              <Edit style={{ width: '0.75rem', height: '0.75rem' }} />
               {isEditing ? 'Cancel' : 'Edit'}
             </button>
             <button
               onClick={() => onDelete(task._id)}
-              className="btn btn-danger text-xs px-3 py-1"
+              className="btn btn-danger"
+              style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem' }}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
+              <Trash2 style={{ width: '1rem', height: '1rem' }} />
               Delete
             </button>
           </div>
@@ -286,8 +360,19 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateProgress, onDelete, i
 
       {/* Quick Actions Panel */}
       {showQuickActions && !isEndedDay && (
-        <div className="mb-4 p-4 bg-bg-tertiary rounded-lg border border-border-secondary">
-          <div className="flex items-center justify-between mb-3">
+        <div style={{
+          marginBottom: '1rem',
+          padding: '1rem',
+          background: 'linear-gradient(135deg, #262626 0%, #333333 100%)',
+          borderRadius: '0.5rem',
+          border: '1px solid var(--border-secondary)'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '0.75rem'
+          }}>
             <h4 className="text-sm font-semibold text-text-primary">Quick Actions</h4>
             <button
               onClick={() => setShowQuickActions(false)}
@@ -296,200 +381,406 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateProgress, onDelete, i
               ✕
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '0.5rem'
+          }}>
             <button
               onClick={() => handleQuickAction('increment-1')}
-              className="btn btn-ghost text-xs py-2"
+              className="btn btn-ghost"
+              style={{ fontSize: '0.75rem', padding: '0.5rem' }}
               disabled={completedItems >= task.totalItems}
             >
               +1
             </button>
             <button
               onClick={() => handleQuickAction('increment-5')}
-              className="btn btn-ghost text-xs py-2"
+              className="btn btn-ghost"
+              style={{ fontSize: '0.75rem', padding: '0.5rem' }}
               disabled={completedItems >= task.totalItems}
             >
               +5
             </button>
             <button
               onClick={() => handleQuickAction('increment-10')}
-              className="btn btn-ghost text-xs py-2"
+              className="btn btn-ghost"
+              style={{ fontSize: '0.75rem', padding: '0.5rem' }}
               disabled={completedItems >= task.totalItems}
             >
               +10
             </button>
             <button
               onClick={() => handleQuickAction('complete-all')}
-              className="btn btn-primary text-xs py-2"
+              className="btn btn-primary"
+              style={{ fontSize: '0.75rem', padding: '0.5rem' }}
               disabled={completedItems >= task.totalItems}
             >
               Complete All
             </button>
             <button
               onClick={() => handleQuickAction('decrement-1')}
-              className="btn btn-ghost text-xs py-2"
+              className="btn btn-ghost"
+              style={{ fontSize: '0.75rem', padding: '0.5rem' }}
               disabled={completedItems <= 0}
             >
               -1
             </button>
             <button
               onClick={() => handleQuickAction('decrement-5')}
-              className="btn btn-ghost text-xs py-2"
+              className="btn btn-ghost"
+              style={{ fontSize: '0.75rem', padding: '0.5rem' }}
               disabled={completedItems <= 0}
             >
               -5
             </button>
             <button
               onClick={() => handleQuickAction('reset')}
-              className="btn btn-danger text-xs py-2"
+              className="btn btn-danger"
+              style={{ fontSize: '0.75rem', padding: '0.5rem' }}
               disabled={completedItems <= 0}
             >
               Reset
             </button>
-            <div className="text-xs text-text-muted flex items-center justify-center">
+            <div style={{
+              fontSize: '0.75rem',
+              color: 'var(--text-muted)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
               Swipe → Complete
             </div>
           </div>
         </div>
       )}
 
-      <div className="mb-4">
-        <div className="flex justify-between items-center mb-3">
-          <div className="flex items-center space-x-2">
+      <div style={{ marginBottom: '1rem' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '0.75rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span className="text-text-muted text-sm font-medium">
               Productivity
             </span>
           </div>
-          <div className="flex items-center space-x-3">
-            <div className={`px-3 py-1 rounded-full ${getProgressColor()} ${getProgressTextColor()}`}>
-              <span className="text-sm font-bold">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{
+              padding: '0.25rem 0.75rem',
+              borderRadius: '9999px',
+              background: getProgressGradient(),
+              color: task.completionPercentage >= 80 ? 'var(--productive-bg)' : task.completionPercentage >= 50 ? 'var(--moderate-bg)' : 'var(--not-productive-bg)'
+            }}>
+              <span style={{ fontSize: '0.875rem', fontWeight: 'bold' }}>
                 {Math.round((completedItems / task.totalItems) * 100)}%
               </span>
             </div>
             {task.isCompleted && (
-              <div className="flex items-center space-x-1 text-productive">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-xs font-medium">Complete</span>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                color: 'var(--productive)'
+              }}>
+                <Check style={{ width: '1rem', height: '1rem' }} />
+                <span style={{ fontSize: '0.75rem', fontWeight: '500' }}>Complete</span>
               </div>
             )}
           </div>
         </div>
         
         {/* Enhanced Progress Bar with Slider */}
-        <div className="space-y-3">
-          <div className="relative">
-            <div className="w-full bg-bg-quaternary rounded-full h-4 overflow-hidden shadow-inner">
-              <div
-                className={`h-4 rounded-full transition-all duration-500 ease-out ${getProgressColor()} shadow-lg`}
-                style={{ width: `${(completedItems / task.totalItems) * 100}%` }}
-              ></div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              width: '100%',
+              background: 'linear-gradient(135deg, #333333 0%, #404040 100%)',
+              borderRadius: '9999px',
+              height: '1rem',
+              overflow: 'hidden',
+              boxShadow: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)'
+            }}>
+              <div style={{
+                height: '1rem',
+                borderRadius: '9999px',
+                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                background: getProgressGradient(),
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                width: `${(completedItems / task.totalItems) * 100}%`
+              }}></div>
             </div>
           </div>
-          
+
           {/* Touch-friendly slider */}
-          <div className="flex items-center space-x-3">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <span className="text-xs text-text-subtle">0</span>
             <input
               type="range"
               min="0"
-              max={task.totalItems}
+              max={currentTotalItems}
               value={completedItems}
               onChange={handleSliderChange}
-              className="flex-1 h-2 bg-bg-quaternary rounded-lg appearance-none cursor-pointer slider"
+              className="slider"
+              style={{
+                flex: 1,
+                height: '0.5rem',
+                background: 'linear-gradient(135deg, #333333 0%, #404040 100%)',
+                borderRadius: '0.5rem',
+                appearance: 'none',
+                cursor: 'pointer'
+              }}
               disabled={isEndedDay}
             />
-            <span className="text-xs text-text-subtle">{task.totalItems}</span>
+            <span className="text-xs text-text-subtle">{currentTotalItems}</span>
           </div>
-          
+
           {/* Progress stats */}
-          <div className="flex justify-between text-xs text-text-muted">
-            <span>{completedItems} of {task.totalItems} items</span>
-            <span>{task.totalItems - completedItems} remaining</span>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: '0.75rem',
+            color: 'var(--text-muted)'
+          }}>
+            <span>{completedItems} of {currentTotalItems} items</span>
+            <span>{currentTotalItems - completedItems} remaining</span>
           </div>
         </div>
+
+        {/* Note section for progress */}
+        {!isEndedDay && (
+          <div style={{ marginTop: '0.75rem', position: 'relative' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '0.25rem'
+            }}>
+              <label className="block text-xs font-medium text-text-primary">
+                Progress Note (optional)
+              </label>
+              {!isEditingNote && (
+                <button
+                  onClick={() => setIsEditingNote(true)}
+                  className="text-accent"
+                  title="Edit note"
+                  style={{
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    padding: '4px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.1)';
+                    e.currentTarget.style.borderRadius = '4px';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  <SquarePen size={16} />
+                </button>
+              )}
+            </div>
+
+            {isEditingNote ? (
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                rows={3}
+                className="form-control"
+                style={{
+                  resize: 'none',
+                  fontSize: '0.75rem'
+                }}
+                placeholder="Add a note about your progress..."
+                autoFocus
+              />
+            ) : (
+              <div style={{
+                minHeight: '2.5rem',
+                padding: '0.5rem',
+                background: 'linear-gradient(135deg, #1a1a1a 0%, #262626 100%)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '0.25rem',
+                fontSize: '0.75rem',
+                color: 'var(--text-secondary)'
+              }}>
+                {note || "Click edit to add a progress note..."}
+              </div>
+            )}
+
+            {isEditingNote && (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '0.5rem',
+                marginTop: '0.5rem'
+              }}>
+                <button
+                  onClick={() => {
+                    setNote(task.note || '');
+                    setIsEditingNote(false);
+                  }}
+                  style={{
+                    padding: '0.375rem 0.75rem',
+                    fontSize: '0.75rem',
+                    fontWeight: '500',
+                    color: 'var(--text-muted)',
+                    background: 'linear-gradient(135deg, #1a1a1a 0%, #262626 100%)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '0.375rem',
+                    transition: 'all 0.2s ease',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #262626 0%, #333333 100%)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-muted)';
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #1a1a1a 0%, #262626 100%)';
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      await onUpdateTask(task._id, { note });
+                      setIsEditingNote(false);
+                    } catch (error) {
+                      console.error('Error saving note:', error);
+                    }
+                  }}
+                  style={{
+                    padding: '0.375rem 0.75rem',
+                    fontSize: '0.75rem',
+                    fontWeight: '500',
+                    color: 'white',
+                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                    border: '1px solid var(--accent)',
+                    borderRadius: '0.375rem',
+                    transition: 'all 0.2s ease',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+                  }}
+                >
+                  <Check style={{ width: '0.75rem', height: '0.75rem' }} />
+                  <span>Save</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {isEditing && !isEndedDay ? (
-        <div className="space-y-4 p-4 bg-bg-tertiary rounded-lg border border-border-secondary">
-          <div className="flex items-center space-x-2 mb-3">
-            <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            <h4 className="text-sm font-semibold text-text-primary">Edit Task Progress</h4>
+      {isEditing && !isEndedDay && (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+          padding: '1rem',
+          background: 'linear-gradient(135deg, #262626 0%, #333333 100%)',
+          borderRadius: '0.5rem',
+          border: '1px solid var(--border-secondary)'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.75rem'
+          }}>
+            <Edit style={{ width: '1rem', height: '1rem', color: 'var(--text-accent)' }} />
+            <h4 className="text-sm font-semibold text-text-primary">Edit Task Details</h4>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-text-primary mb-2">
-              Completed Items
+              Task Title
             </label>
-            <div className="relative">
-              <input
-                type="number"
-                min="0"
-                max={task.totalItems}
-                value={completedItems}
-                onChange={(e) => setCompletedItems(parseInt(e.target.value))}
-                className="form-control pr-12"
-                placeholder="Enter completed items"
-              />
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-muted text-sm">
-                / {task.totalItems}
-              </div>
-            </div>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">
-              Note (optional)
-            </label>
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              rows={3}
-              className="form-control resize-none"
-              placeholder="Add a note about your progress..."
+            <input
+              type="text"
+              value={currentTitle}
+              onChange={(e) => setCurrentTitle(e.target.value)}
+              className="form-control"
+              placeholder="Enter task title"
             />
           </div>
-          
-          <div className="flex space-x-3 pt-2">
+
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-2">
+              Description (optional)
+            </label>
+            <textarea
+              value={currentDescription}
+              onChange={(e) => setCurrentDescription(e.target.value)}
+              rows={3}
+              className="form-control"
+              style={{ resize: 'none' }}
+              placeholder="Enter task description..."
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-2">
+              Total Items
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={currentTotalItems}
+              onChange={(e) => setCurrentTotalItems(parseInt(e.target.value))}
+              className="form-control"
+              placeholder="Enter total items"
+            />
+          </div>
+
+          <div style={{
+            display: 'flex',
+            gap: '0.75rem',
+            paddingTop: '0.5rem'
+          }}>
             <button
               onClick={handleSave}
               disabled={loading}
-              className="btn btn-primary flex-1 flex items-center justify-center space-x-2"
+              className="btn btn-primary"
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem'
+              }}
             >
               {loading ? (
                 <div className="loading-spinner"></div>
               ) : (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+                <Check style={{ width: '1rem', height: '1rem' }} />
               )}
               <span>{loading ? 'Saving...' : 'Save Changes'}</span>
             </button>
             <button
               onClick={handleCancel}
-              className="btn btn-secondary px-6"
+              className="btn btn-secondary"
+              style={{ padding: '0 1.5rem' }}
             >
               Cancel
             </button>
           </div>
         </div>
-      ) : (
-        task.note && (
-          <div className="mt-4 p-3 bg-bg-tertiary rounded-lg border-l-4 border-accent">
-            <div className="flex items-start space-x-2">
-              <svg className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-              </svg>
-              <div>
-                <p className="text-xs font-medium text-accent mb-1">Note</p>
-                <p className="text-text-secondary text-sm leading-relaxed">{task.note}</p>
-              </div>
-            </div>
-          </div>
-        )
       )}
     </div>
   );
