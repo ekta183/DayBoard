@@ -34,19 +34,42 @@ const PublicSchedules = () => {
 
   if (selectedUser) {
     return (
-      <div className="min-h-screen bg-bg-primary">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="mb-6">
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%)'
+      }}>
+        <div style={{
+          maxWidth: '72rem',
+          margin: '0 auto',
+          padding: '2rem 1rem'
+        }}>
+          <div style={{ marginBottom: '1.5rem' }}>
             <button
               onClick={handleBackToList}
-              className="bg-bg-secondary hover:bg-bg-tertiary text-text-primary px-4 py-2 rounded-lg font-medium transition-colors mb-4"
+              style={{
+                background: 'linear-gradient(135deg, #1a1a1a 0%, #262626 100%)',
+                border: '1px solid rgba(255, 255, 255, 0.05)',
+                color: '#ffffff',
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                marginBottom: '1rem'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, #262626 0%, #333333 100%)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, #1a1a1a 0%, #262626 100%)';
+              }}
             >
               ← Back to Users
             </button>
           </div>
-          
-          <Calendar 
-            userId={selectedUser._id} 
+
+          <Calendar
+            userId={selectedUser._id}
             username={selectedUser.username}
           />
         </div>
@@ -55,45 +78,104 @@ const PublicSchedules = () => {
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-text-primary mb-2">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%)'
+    }}>
+      <div style={{
+        maxWidth: '64rem',
+        margin: '0 auto',
+        padding: '2rem 1rem'
+      }}>
+        <div style={{ marginBottom: '2rem' }}>
+          <h1 style={{
+            fontSize: '1.875rem',
+            fontWeight: 'bold',
+            color: '#ffffff',
+            marginBottom: '0.5rem'
+          }}>
             Public Schedules
           </h1>
-          <p className="text-text-secondary">
+          <p style={{
+            color: '#a3a3a3',
+            fontSize: '1rem'
+          }}>
             View other users' productivity calendars and schedules
           </p>
         </div>
 
         {loading ? (
-          <div className="text-center py-12">
-            <div className="text-text-secondary">Loading users...</div>
+          <div style={{
+            textAlign: 'center',
+            padding: '3rem 0'
+          }}>
+            <div style={{ color: '#a3a3a3' }}>Loading users...</div>
           </div>
         ) : users.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-text-secondary">
+          <div style={{
+            textAlign: 'center',
+            padding: '3rem 0'
+          }}>
+            <div style={{ color: '#a3a3a3' }}>
               No public users found
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '1.5rem'
+          }}>
             {users.map(user => (
               <div
                 key={user._id}
                 onClick={() => handleUserSelect(user)}
-                className="bg-bg-secondary border border-border-color rounded-lg p-6 hover:bg-bg-tertiary cursor-pointer transition-colors"
+                style={{
+                  background: 'linear-gradient(135deg, #1a1a1a 0%, #262626 100%)',
+                  border: '1px solid rgba(255, 255, 255, 0.05)',
+                  borderRadius: '0.5rem',
+                  padding: '1.5rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  backdropFilter: 'blur(10px)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #262626 0%, #333333 100%)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #1a1a1a 0%, #262626 100%)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
-                <div className="flex items-center justify-between">
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}>
                   <div>
-                    <h3 className="text-lg font-semibold text-text-primary mb-2">
+                    <h3 style={{
+                      fontSize: '1.125rem',
+                      fontWeight: '600',
+                      color: '#ffffff',
+                      marginBottom: '0.5rem'
+                    }}>
                       {user.username}
                     </h3>
-                    <p className="text-text-secondary text-sm">
+                    <p style={{
+                      color: '#a3a3a3',
+                      fontSize: '0.875rem'
+                    }}>
                       Click to view calendar
                     </p>
                   </div>
-                  <div className="text-accent text-xl">
+                  <div style={{
+                    color: '#8b5cf6',
+                    fontSize: '1.25rem',
+                    fontWeight: 'bold'
+                  }}>
                     →
                   </div>
                 </div>

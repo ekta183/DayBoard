@@ -36,24 +36,74 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg-primary px-4">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-text-primary">
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%)',
+      padding: '0 1rem'
+    }}>
+      <div style={{
+        maxWidth: '28rem',
+        width: '100%',
+        background: 'linear-gradient(135deg, #1a1a1a 0%, #262626 100%)',
+        border: '1px solid rgba(255, 255, 255, 0.05)',
+        borderRadius: '0.75rem',
+        padding: '2rem',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)'
+      }}>
+        <div style={{ marginBottom: '2rem' }}>
+          <h2 style={{
+            textAlign: 'center',
+            fontSize: '1.875rem',
+            fontWeight: '800',
+            color: '#ffffff',
+            marginBottom: '0.5rem'
+          }}>
             Sign in to DayBoard
           </h2>
+          <p style={{
+            textAlign: 'center',
+            color: '#a3a3a3',
+            fontSize: '0.875rem'
+          }}>
+            Welcome back! Please sign in to your account
+          </p>
         </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
+
+        <form style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.5rem'
+        }} onSubmit={handleSubmit}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem'
+          }}>
             {error && (
-              <div className="bg-red-900/20 border border-red-500 text-red-400 px-4 py-3 rounded">
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%)',
+                border: '1px solid rgba(220, 38, 38, 0.3)',
+                color: '#fca5a5',
+                padding: '0.75rem 1rem',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem'
+              }}>
                 {error}
               </div>
             )}
-            
+
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-text-primary">
+              <label htmlFor="email" style={{
+                display: 'block',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                color: '#ffffff',
+                marginBottom: '0.5rem'
+              }}>
                 Email address
               </label>
               <input
@@ -63,13 +113,37 @@ const Login = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 bg-bg-secondary border border-border-color rounded-md text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1rem',
+                  background: 'linear-gradient(135deg, #262626 0%, #333333 100%)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '0.5rem',
+                  color: '#ffffff',
+                  fontSize: '0.875rem',
+                  transition: 'all 0.2s ease',
+                  outline: 'none'
+                }}
                 placeholder="Enter your email"
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#8b5cf6';
+                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               />
             </div>
-            
+
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-text-primary">
+              <label htmlFor="password" style={{
+                display: 'block',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                color: '#ffffff',
+                marginBottom: '0.5rem'
+              }}>
                 Password
               </label>
               <input
@@ -79,8 +153,26 @@ const Login = () => {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 bg-bg-secondary border border-border-color rounded-md text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1rem',
+                  background: 'linear-gradient(135deg, #262626 0%, #333333 100%)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '0.5rem',
+                  color: '#ffffff',
+                  fontSize: '0.875rem',
+                  transition: 'all 0.2s ease',
+                  outline: 'none'
+                }}
                 placeholder="Enter your password"
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#8b5cf6';
+                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               />
             </div>
           </div>
@@ -89,15 +181,64 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-accent hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50"
+              style={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '0.75rem 1rem',
+                border: 'none',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                borderRadius: '0.5rem',
+                color: '#ffffff',
+                background: loading
+                  ? 'linear-gradient(135deg, #6b7280 0%, #9ca3af 100%)'
+                  : 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                opacity: loading ? 0.7 : 1,
+                boxShadow: loading ? 'none' : '0 4px 15px rgba(139, 92, 246, 0.3)'
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(139, 92, 246, 0.4)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.3)';
+                }
+              }}
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
 
-          <div className="text-center">
-            <span className="text-text-secondary">Don't have an account? </span>
-            <Link to="/register" className="text-accent hover:text-accent-hover">
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ color: '#a3a3a3', fontSize: '0.875rem' }}>
+              Don't have an account?{' '}
+            </span>
+            <Link
+              to="/register"
+              style={{
+                color: '#8b5cf6',
+                textDecoration: 'none',
+                fontWeight: '500',
+                fontSize: '0.875rem',
+                transition: 'color 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#a855f7';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#8b5cf6';
+              }}
+            >
               Sign up
             </Link>
           </div>

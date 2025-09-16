@@ -43,6 +43,9 @@ const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    if (user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+    }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
@@ -57,6 +60,7 @@ const login = async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
+        role: user.role,
         profileVisible: user.profileVisible
       }
     });

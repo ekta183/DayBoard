@@ -7,7 +7,7 @@ yarn-error.log*
 
 # Environment variables
 .env
-.env.*
+.env.local
 backend/.env
 frontend/.env
 .env.local

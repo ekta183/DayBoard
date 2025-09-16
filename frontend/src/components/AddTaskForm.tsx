@@ -51,19 +51,42 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ({ onAddTask, selectedDate, isEn
   }
 
   return (
-    <div className="mb-6">
+    <div style={{ marginBottom: '1.5rem' }}>
       {!isOpen ? (
         <button
           onClick={() => setIsOpen(true)}
-          className="w-full bg-accent hover:bg-accent-hover text-white py-3 px-4 rounded-lg font-medium transition-colors"
+          className="btn btn-primary"
+          style={{
+            width: '100%',
+            padding: '0.75rem 1rem',
+            fontSize: '0.875rem',
+            fontWeight: '500',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem'
+          }}
         >
           + Add New Task
         </button>
       ) : (
-        <div className="bg-bg-secondary border border-border-color rounded-lg p-4">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="bg-bg-secondary" style={{
+          border: '1px solid rgba(255, 255, 255, 0.05)',
+          borderRadius: '0.5rem',
+          padding: '1rem'
+        }}>
+          <form onSubmit={handleSubmit} style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem'
+          }}>
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
+              <label className="text-text-primary" style={{
+                display: 'block',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                marginBottom: '0.5rem'
+              }}>
                 Task Title *
               </label>
               <input
@@ -72,13 +95,18 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ({ onAddTask, selectedDate, isEn
                 required
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-bg-tertiary border border-border-color rounded text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                className="form-control"
                 placeholder="Enter task title"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
+              <label className="text-text-primary" style={{
+                display: 'block',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                marginBottom: '0.5rem'
+              }}>
                 Description (optional)
               </label>
               <textarea
@@ -86,13 +114,19 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ({ onAddTask, selectedDate, isEn
                 value={formData.description}
                 onChange={handleChange}
                 rows={2}
-                className="w-full px-3 py-2 bg-bg-tertiary border border-border-color rounded text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                className="form-control"
+                style={{ resize: 'vertical' }}
                 placeholder="Enter task description"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
+              <label className="text-text-primary" style={{
+                display: 'block',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                marginBottom: '0.5rem'
+              }}>
                 Total Items *
               </label>
               <input
@@ -102,28 +136,47 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ({ onAddTask, selectedDate, isEn
                 min="1"
                 value={formData.totalItems}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-bg-tertiary border border-border-color rounded text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                className="form-control"
                 placeholder="e.g., 4 for 4 questions"
               />
-              <p className="text-text-muted text-xs mt-1">
+              <p className="text-text-muted" style={{
+                fontSize: '0.75rem',
+                marginTop: '0.25rem'
+              }}>
                 How many items/questions/parts does this task have?
               </p>
             </div>
             
-            <div className="flex space-x-3">
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded font-medium disabled:opacity-50"
-              >
-                {loading ? 'Adding...' : 'Add Task'}
-              </button>
+            <div style={{
+              display: 'flex',
+              gap: '0.75rem',
+              justifyContent: 'flex-end'
+            }}>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="bg-bg-tertiary hover:bg-border-color text-text-primary px-4 py-2 rounded font-medium"
+                className="btn btn-secondary"
               >
                 Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn btn-primary"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                {loading ? (
+                  <>
+                    <div className="loading-spinner"></div>
+                    <span>Adding...</span>
+                  </>
+                ) : (
+                  'Add Task'
+                )}
               </button>
             </div>
           </form>
