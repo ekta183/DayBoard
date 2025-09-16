@@ -1,5 +1,6 @@
 const Task = require('../models/Task');
 const DayRecord = require('../models/DayRecord');
+const User = require('../models/User');
 
 const createTask = async (req, res) => {
   try {
@@ -148,9 +149,42 @@ const deleteTask = async (req, res) => {
   }
 };
 
+const getPublicUserTasks = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { date } = req.query;
+
+    // Check if user exists and profile is visible
+    const user = await User.findById(userId);
+    if (!user || !user.profileVisible) {
+      return res.status(404).json({ message: 'User not found or profile not visible' });
+    }
+
+    const query = { userId };
+
+    if (date) {
+      const taskDate = new Date(date);
+      taskDate.setHours(0, 0, 0, 0);
+      const nextDay = new Date(taskDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      query.date = {
+        $gte: taskDate,
+        $lt: nextDay
+      };
+    }
+
+    const tasks = await Task.find(query).sort({ createdAt: -1 });
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createTask,
   updateTask,
   getUserTasks,
-  deleteTask
+  deleteTask,
+  getPublicUserTasks
 };

@@ -40,7 +40,7 @@ const endDay = async (req, res) => {
 
     dayRecord.isEnded = true;
     dayRecord.endedAt = new Date();
-    dayRecord.calculateProductivity();
+    await dayRecord.calculateProductivity();
 
     await dayRecord.save();
 

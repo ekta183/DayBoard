@@ -53,7 +53,16 @@ const Calendar: React.FC<CalendarProps> = ({ userId = null, username = null }) =
     setTasksLoading(true);
     try {
       const dateString = formatDateLocal(date);
-      const tasks = await api.tasks.getByDate(dateString);
+      let tasks;
+
+      if (userId) {
+        // Viewing someone else's calendar - fetch their tasks
+        tasks = await api.tasks.getPublicByDate(userId, dateString);
+      } else {
+        // Viewing own calendar - fetch own tasks
+        tasks = await api.tasks.getByDate(dateString);
+      }
+
       setSelectedDayTasks(tasks);
       setSelectedDate(date);
       setShowTaskModal(true);
@@ -611,6 +620,64 @@ const Calendar: React.FC<CalendarProps> = ({ userId = null, username = null }) =
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {/* Summary Stats */}
+                  <div style={{
+                    padding: '1rem',
+                    background: 'linear-gradient(135deg, #262626 0%, #333333 100%)',
+                    borderRadius: '0.5rem',
+                    border: '1px solid #525252'
+                  }}>
+                    <h4 style={{
+                      fontSize: '1.125rem',
+                      fontWeight: '600',
+                      color: '#ffffff',
+                      marginBottom: '0.75rem'
+                    }}>Day Summary</h4>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                      gap: '1rem',
+                      fontSize: '0.875rem'
+                    }}>
+                      <div>
+                        <span style={{ color: '#a3a3a3' }}>Total Tasks:</span>
+                        <span style={{
+                          marginLeft: '0.5rem',
+                          fontWeight: '600',
+                          color: '#ffffff'
+                        }}>{selectedDayTasks.length}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: '#a3a3a3' }}>Completed:</span>
+                        <span style={{
+                          marginLeft: '0.5rem',
+                          fontWeight: '600',
+                          color: '#059669'
+                        }}>{selectedDayTasks.filter(t => t.isCompleted).length}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: '#a3a3a3' }}>
+                          {selectedDate && selectedDate.toDateString() < new Date().toDateString() ? 'Incomplete:' : 'In Progress:'}
+                        </span>
+                        <span style={{
+                          marginLeft: '0.5rem',
+                          fontWeight: '600',
+                          color: selectedDate && selectedDate.toDateString() < new Date().toDateString() ? '#dc2626' : '#d97706'
+                        }}>{selectedDayTasks.filter(t => !t.isCompleted).length}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: '#a3a3a3' }}>Avg. Progress:</span>
+                        <span style={{
+                          marginLeft: '0.5rem',
+                          fontWeight: '600',
+                          color: '#ffffff'
+                        }}>
+                          {Math.round(selectedDayTasks.reduce((acc, task) => acc + task.completionPercentage, 0) / selectedDayTasks.length)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
                   {selectedDayTasks.map((task) => (
                     <div key={task._id} style={{
                       background: 'linear-gradient(135deg, #262626 0%, #333333 100%)',
@@ -714,69 +781,12 @@ const Calendar: React.FC<CalendarProps> = ({ userId = null, username = null }) =
                           fontSize: '0.75rem',
                           color: '#737373'
                         }}>
-                          <span>Status: {task.isCompleted ? '✅ Completed' : '⏳ In Progress'}</span>
+                          <span>Status: {task.isCompleted ? '✅ Completed' : (selectedDate && selectedDate.toDateString() < new Date().toDateString() ? '❌ Incomplete' : '⏳ In Progress')}</span>
                           <span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
                         </div>
                       </div>
                     </div>
                   ))}
-                  
-                  {/* Summary Stats */}
-                  <div style={{
-                    marginTop: '1.5rem',
-                    padding: '1rem',
-                    background: 'linear-gradient(135deg, #262626 0%, #333333 100%)',
-                    borderRadius: '0.5rem',
-                    border: '1px solid #525252'
-                  }}>
-                    <h4 style={{
-                      fontSize: '1.125rem',
-                      fontWeight: '600',
-                      color: '#ffffff',
-                      marginBottom: '0.75rem'
-                    }}>Day Summary</h4>
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                      gap: '1rem',
-                      fontSize: '0.875rem'
-                    }}>
-                      <div>
-                        <span style={{ color: '#a3a3a3' }}>Total Tasks:</span>
-                        <span style={{
-                          marginLeft: '0.5rem',
-                          fontWeight: '600',
-                          color: '#ffffff'
-                        }}>{selectedDayTasks.length}</span>
-                      </div>
-                      <div>
-                        <span style={{ color: '#a3a3a3' }}>Completed:</span>
-                        <span style={{
-                          marginLeft: '0.5rem',
-                          fontWeight: '600',
-                          color: '#059669'
-                        }}>{selectedDayTasks.filter(t => t.isCompleted).length}</span>
-                      </div>
-                      <div>
-                        <span style={{ color: '#a3a3a3' }}>In Progress:</span>
-                        <span style={{
-                          marginLeft: '0.5rem',
-                          fontWeight: '600',
-                          color: '#d97706'
-                        }}>{selectedDayTasks.filter(t => !t.isCompleted).length}</span>
-                      </div>
-                      <div>
-                        <span style={{ color: '#a3a3a3' }}>Avg. Progress:</span>
-                        <span style={{
-                          marginLeft: '0.5rem',
-                          fontWeight: '600',
-                          color: '#ffffff'
-                        }}>
-                          {Math.round(selectedDayTasks.reduce((acc, task) => acc + task.completionPercentage, 0) / selectedDayTasks.length)}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               )}
             </div>

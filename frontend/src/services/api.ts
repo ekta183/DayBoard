@@ -49,6 +49,8 @@ const api = {
 
     getByDate: (date: string) => api.request(`/tasks?date=${date}`),
 
+    getPublicByDate: (userId: string, date: string) => api.request(`/tasks/public/${userId}?date=${date}`),
+
     update: (taskId: string, taskData: { title?: string; description?: string; totalItems?: number; completedItems?: number; note?: string }) => api.request(`/tasks/${taskId}`, {
       method: 'PUT',
       body: JSON.stringify(taskData),

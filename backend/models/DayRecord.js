@@ -44,15 +44,30 @@ const dayRecordSchema = new mongoose.Schema({
 
 dayRecordSchema.index({ userId: 1, date: 1 }, { unique: true });
 
-dayRecordSchema.methods.calculateProductivity = function() {
+dayRecordSchema.methods.calculateProductivity = async function() {
   if (this.totalTasks === 0) {
     this.overallProductivity = 0;
     this.productivityLabel = 'Not Productive';
     return;
   }
 
-  this.overallProductivity = Math.round((this.completedTasks / this.totalTasks) * 100);
-  
+  // Get all tasks for this day to calculate average completion percentage
+  const Task = require('./Task');
+  const tasks = await Task.find({
+    userId: this.userId,
+    date: this.date
+  });
+
+  if (tasks.length === 0) {
+    this.overallProductivity = 0;
+    this.productivityLabel = 'Not Productive';
+    return;
+  }
+
+  // Calculate average completion percentage of all tasks
+  const totalCompletionPercentage = tasks.reduce((sum, task) => sum + task.completionPercentage, 0);
+  this.overallProductivity = Math.round(totalCompletionPercentage / tasks.length);
+
   if (this.overallProductivity >= 80) {
     this.productivityLabel = 'Productive';
   } else if (this.overallProductivity >= 50) {
