@@ -141,27 +141,80 @@ const Calendar: React.FC<CalendarProps> = ({ userId = null, username = null }) =
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="bg-bg-secondary border border-border-color rounded-lg p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-text-primary">
+    <div style={{
+      background: 'linear-gradient(135deg, #1a1a1a 0%, #262626 100%)',
+      border: '1px solid rgba(255, 255, 255, 0.05)',
+      borderRadius: '0.5rem',
+      padding: '1.5rem',
+      backdropFilter: 'blur(10px)'
+    }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '1.5rem'
+      }}>
+        <h2 style={{
+          fontSize: '1.5rem',
+          fontWeight: 'bold',
+          color: '#ffffff'
+        }}>
           {username ? `${username}'s Calendar` : 'My Calendar'}
         </h2>
         
-        <div className="flex items-center space-x-4">
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
           <button
             onClick={() => navigateMonth(-1)}
-            className="p-2 hover:bg-bg-tertiary rounded-lg text-text-primary"
+            style={{
+              padding: '0.5rem',
+              backgroundColor: 'transparent',
+              border: 'none',
+              borderRadius: '0.5rem',
+              color: '#ffffff',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, #262626 0%, #333333 100%)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
           >
             ←
           </button>
           
-          <span className="text-lg font-semibold text-text-primary min-w-[200px] text-center">
+          <span style={{
+            fontSize: '1.125rem',
+            fontWeight: '600',
+            color: '#ffffff',
+            minWidth: '200px',
+            textAlign: 'center'
+          }}>
             {formatMonthYear()}
           </span>
           
           <button
             onClick={() => navigateMonth(1)}
-            className="p-2 hover:bg-bg-tertiary rounded-lg text-text-primary"
+            style={{
+              padding: '0.5rem',
+              backgroundColor: 'transparent',
+              border: 'none',
+              borderRadius: '0.5rem',
+              color: '#ffffff',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, #262626 0%, #333333 100%)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
           >
             →
           </button>
@@ -169,20 +222,37 @@ const Calendar: React.FC<CalendarProps> = ({ userId = null, username = null }) =
       </div>
 
       {loading ? (
-        <div className="text-center py-8">
-          <div className="text-text-secondary">Loading calendar...</div>
+        <div style={{
+          textAlign: 'center',
+          padding: '2rem 0'
+        }}>
+          <div style={{ color: '#e5e5e5' }}>Loading calendar...</div>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-7 gap-1 mb-2">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
+            gap: '0.25rem',
+            marginBottom: '0.5rem'
+          }}>
             {weekDays.map(day => (
-              <div key={day} className="p-2 text-center font-medium text-text-secondary">
+              <div key={day} style={{
+                padding: '0.5rem',
+                textAlign: 'center',
+                fontWeight: '500',
+                color: '#e5e5e5'
+              }}>
                 {day}
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-1">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
+            gap: '0.25rem'
+          }}>
             {days.map((date, index) => {
               const record = getDayRecord(date);
               const productivityColor = getProductivityColor(record);
@@ -191,36 +261,101 @@ const Calendar: React.FC<CalendarProps> = ({ userId = null, username = null }) =
                 <div
                   key={index}
                   onClick={() => handleDayClick(date)}
-                  className={`
-                    relative p-2 min-h-[60px] border border-border-color rounded-lg cursor-pointer
-                    transition-all duration-300 hover:scale-105 hover:shadow-lg
-                    ${isCurrentMonth(date) ? 'calendar-day-selectable bg-bg-primary' : 'bg-bg-tertiary opacity-50 cursor-not-allowed'}
-                    ${isToday(date) ? 'ring-2 ring-accent' : ''}
-                    ${selectedDate && date.toDateString() === selectedDate.toDateString() 
-                      ? 'calendar-day-selected ring-2 ring-purple-500' 
-                      : isCurrentMonth(date) ? 'hover:calendar-day-hover hover:ring-2 hover:ring-purple-400' : ''
+                  style={{
+                    position: 'relative',
+                    padding: '0.5rem',
+                    minHeight: '60px',
+                    border: '1px solid #404040',
+                    borderRadius: '0.5rem',
+                    cursor: isCurrentMonth(date) ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.3s ease',
+                    background: isCurrentMonth(date)
+                      ? (selectedDate && date.toDateString() === selectedDate.toDateString()
+                          ? 'linear-gradient(135deg, rgba(147, 51, 234, 0.15) 0%, rgba(168, 85, 247, 0.1) 100%)'
+                          : 'linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%)')
+                      : 'linear-gradient(135deg, #262626 0%, #333333 100%)',
+                    opacity: isCurrentMonth(date) ? 1 : 0.5,
+                    borderColor: isToday(date)
+                      ? '#6366f1'
+                      : (selectedDate && date.toDateString() === selectedDate.toDateString()
+                          ? 'rgba(147, 51, 234, 0.5)'
+                          : '#404040'),
+                    boxShadow: selectedDate && date.toDateString() === selectedDate.toDateString()
+                      ? '0 4px 20px rgba(147, 51, 234, 0.2)'
+                      : (isToday(date) ? '0 0 0 2px #6366f1' : 'none')
+                  }}
+                  onMouseEnter={(e) => {
+                    if (isCurrentMonth(date) && (!selectedDate || date.toDateString() !== selectedDate.toDateString())) {
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                      e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.3)';
+                      e.currentTarget.style.background = 'linear-gradient(135deg, rgba(147, 51, 234, 0.05) 0%, rgba(168, 85, 247, 0.03) 100%)';
+                      e.currentTarget.style.borderColor = 'rgba(147, 51, 234, 0.3)';
                     }
-                  `}
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isCurrentMonth(date) && (!selectedDate || date.toDateString() !== selectedDate.toDateString())) {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = 'none';
+                      e.currentTarget.style.background = 'linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%)';
+                      e.currentTarget.style.borderColor = isToday(date) ? '#6366f1' : '#404040';
+                    }
+                  }}
                 >
-                  <div className="flex justify-between items-start">
-                    <span className={`
-                      text-sm font-medium
-                      ${isCurrentMonth(date) ? 'text-text-primary' : 'text-text-muted'}
-                    `}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start'
+                  }}>
+                    <span style={{
+                      fontSize: '0.875rem',
+                      fontWeight: '500',
+                      color: isCurrentMonth(date) ? '#ffffff' : '#a3a3a3'
+                    }}>
                       {date.getDate()}
                     </span>
                     
                     {record && (
-                      <div 
-                        className={`w-3 h-3 rounded-full ${productivityColor}`}
+                      <div
+                        style={{
+                          width: '0.75rem',
+                          height: '0.75rem',
+                          borderRadius: '50%',
+                          background: record.overallProductivity >= 80
+                            ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)'
+                            : record.overallProductivity >= 50
+                            ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)'
+                            : 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
+                          boxShadow: record.overallProductivity >= 80
+                            ? '0 4px 15px rgba(5, 150, 105, 0.4)'
+                            : record.overallProductivity >= 50
+                            ? '0 4px 15px rgba(217, 119, 6, 0.4)'
+                            : '0 4px 15px rgba(220, 38, 38, 0.4)'
+                        }}
                         title={`${record.productivityLabel} - ${record.overallProductivity}%`}
                       ></div>
                     )}
                   </div>
                   
                   {record && (
-                    <div className="mt-2">
-                      <div className={`px-2 py-1 rounded-full text-xs font-bold text-center ${productivityColor} ${getProductivityTextColor(record)}`}>
+                    <div style={{ marginTop: '0.5rem' }}>
+                      <div style={{
+                        padding: '0.25rem 0.5rem',
+                        borderRadius: '9999px',
+                        fontSize: '0.75rem',
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        color: '#ffffff',
+                        background: record.overallProductivity >= 80
+                          ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)'
+                          : record.overallProductivity >= 50
+                          ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)'
+                          : 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
+                        boxShadow: record.overallProductivity >= 80
+                          ? '0 4px 15px rgba(5, 150, 105, 0.4)'
+                          : record.overallProductivity >= 50
+                          ? '0 4px 15px rgba(217, 119, 6, 0.4)'
+                          : '0 4px 15px rgba(220, 38, 38, 0.4)'
+                      }}>
                         {record.overallProductivity}%
                       </div>
                     </div>
@@ -228,8 +363,18 @@ const Calendar: React.FC<CalendarProps> = ({ userId = null, username = null }) =
                   
                   {/* Task indicator for days with tasks */}
                   {isCurrentMonth(date) && (
-                    <div className="absolute bottom-1 right-1">
-                      <div className="w-2 h-2 bg-accent rounded-full opacity-60"></div>
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '0.25rem',
+                      right: '0.25rem'
+                    }}>
+                      <div style={{
+                        width: '0.5rem',
+                        height: '0.5rem',
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                        borderRadius: '50%',
+                        opacity: 0.6
+                      }}></div>
                     </div>
                   )}
                 </div>
@@ -237,38 +382,123 @@ const Calendar: React.FC<CalendarProps> = ({ userId = null, username = null }) =
             })}
           </div>
 
-          <div className="mt-6 space-y-4">
-            <div className="flex items-center justify-center space-x-6 text-sm">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-productive"></div>
-                <div className="px-3 py-1 rounded-full bg-productive text-productive-bg text-xs font-bold">
+          <div style={{ marginTop: '1.5rem' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '1.5rem',
+              fontSize: '0.875rem',
+              marginBottom: '1rem'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <div style={{
+                  width: '0.75rem',
+                  height: '0.75rem',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                  boxShadow: '0 4px 15px rgba(5, 150, 105, 0.4)'
+                }}></div>
+                <div style={{
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '9999px',
+                  background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                  color: '#ffffff',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold'
+                }}>
                   80%+
                 </div>
-                <span className="text-text-secondary">High Productivity</span>
+                <span style={{ color: '#e5e5e5' }}>High Productivity</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-moderate"></div>
-                <div className="px-3 py-1 rounded-full bg-moderate text-moderate-bg text-xs font-bold">
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <div style={{
+                  width: '0.75rem',
+                  height: '0.75rem',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
+                  boxShadow: '0 4px 15px rgba(217, 119, 6, 0.4)'
+                }}></div>
+                <div style={{
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '9999px',
+                  background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
+                  color: '#ffffff',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold'
+                }}>
                   50-79%
                 </div>
-                <span className="text-text-secondary">Moderate</span>
+                <span style={{ color: '#e5e5e5' }}>Moderate</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-not-productive"></div>
-                <div className="px-3 py-1 rounded-full bg-not-productive text-not-productive-bg text-xs font-bold">
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <div style={{
+                  width: '0.75rem',
+                  height: '0.75rem',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
+                  boxShadow: '0 4px 15px rgba(220, 38, 38, 0.4)'
+                }}></div>
+                <div style={{
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '9999px',
+                  background: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
+                  color: '#ffffff',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold'
+                }}>
                   0-49%
                 </div>
-                <span className="text-text-secondary">Low</span>
+                <span style={{ color: '#e5e5e5' }}>Low</span>
               </div>
             </div>
             
-            <div className="text-center text-sm text-text-muted">
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-2 h-2 bg-accent rounded-full"></div>
+            <div style={{
+              textAlign: 'center',
+              fontSize: '0.875rem',
+              color: '#a3a3a3'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                marginBottom: '0.5rem'
+              }}>
+                <div style={{
+                  width: '0.5rem',
+                  height: '0.5rem',
+                  background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                  borderRadius: '50%'
+                }}></div>
                 <span>Days with tasks</span>
               </div>
-              <div className="flex items-center justify-center space-x-2 mt-2">
-                <div className="w-3 h-3 rounded-full bg-purple-500 ring-2 ring-purple-400"></div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem'
+              }}>
+                <div style={{
+                  width: '0.75rem',
+                  height: '0.75rem',
+                  borderRadius: '50%',
+                  background: '#8b5cf6',
+                  border: '2px solid rgba(139, 92, 246, 0.4)',
+                  boxShadow: '0 0 0 2px rgba(139, 92, 246, 0.4)'
+                }}></div>
                 <span>Click on any day to view tasks and progress details</span>
               </div>
             </div>
@@ -278,11 +508,43 @@ const Calendar: React.FC<CalendarProps> = ({ userId = null, username = null }) =
 
       {/* Task Modal */}
       {showTaskModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-bg-secondary rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden">
-            <div className="p-6 border-b border-border-secondary">
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold text-text-primary">
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #1a1a1a 0%, #262626 100%)',
+            borderRadius: '0.5rem',
+            maxWidth: '42rem',
+            width: '100%',
+            maxHeight: '80vh',
+            overflow: 'hidden',
+            border: '1px solid rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(10px)'
+          }}>
+            <div style={{
+              padding: '1.5rem',
+              borderBottom: '1px solid #525252'
+            }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <h3 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: 'bold',
+                  color: '#ffffff'
+                }}>
                   Tasks for {selectedDate?.toLocaleDateString('en-US', { 
                     weekday: 'long', 
                     year: 'numeric', 
@@ -292,62 +554,166 @@ const Calendar: React.FC<CalendarProps> = ({ userId = null, username = null }) =
                 </h3>
                 <button
                   onClick={() => setShowTaskModal(false)}
-                  className="text-text-muted hover:text-text-primary text-2xl"
+                  style={{
+                    color: '#a3a3a3',
+                    fontSize: '1.5rem',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'color 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#ffffff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#a3a3a3';
+                  }}
                 >
                   ×
                 </button>
               </div>
             </div>
             
-            <div className="p-6 overflow-y-auto max-h-[60vh]">
+            <div style={{
+              padding: '1.5rem',
+              overflowY: 'auto',
+              maxHeight: '60vh'
+            }}>
               {tasksLoading ? (
-                <div className="flex items-center justify-center py-8">
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '2rem 0'
+                }}>
                   <div className="loading-spinner"></div>
-                  <span className="ml-2 text-text-secondary">Loading tasks...</span>
+                  <span style={{
+                    marginLeft: '0.5rem',
+                    color: '#e5e5e5'
+                  }}>Loading tasks...</span>
                 </div>
               ) : selectedDayTasks.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="text-4xl mb-4">📝</div>
-                  <h4 className="text-lg font-semibold text-text-primary mb-2">No tasks found</h4>
-                  <p className="text-text-muted">No tasks were created for this day.</p>
+                <div style={{
+                  textAlign: 'center',
+                  padding: '2rem 0'
+                }}>
+                  <div style={{
+                    fontSize: '2.25rem',
+                    marginBottom: '1rem'
+                  }}>📝</div>
+                  <h4 style={{
+                    fontSize: '1.125rem',
+                    fontWeight: '600',
+                    color: '#ffffff',
+                    marginBottom: '0.5rem'
+                  }}>No tasks found</h4>
+                  <p style={{ color: '#a3a3a3' }}>No tasks were created for this day.</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {selectedDayTasks.map((task) => (
-                    <div key={task._id} className="bg-bg-tertiary rounded-lg p-4 border border-border-secondary">
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex-1">
-                          <h4 className="text-lg font-semibold text-text-primary mb-1">{task.title}</h4>
+                    <div key={task._id} style={{
+                      background: 'linear-gradient(135deg, #262626 0%, #333333 100%)',
+                      borderRadius: '0.5rem',
+                      padding: '1rem',
+                      border: '1px solid #525252'
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                        marginBottom: '0.75rem'
+                      }}>
+                        <div style={{ flex: 1 }}>
+                          <h4 style={{
+                            fontSize: '1.125rem',
+                            fontWeight: '600',
+                            color: '#ffffff',
+                            marginBottom: '0.25rem'
+                          }}>{task.title}</h4>
                           {task.description && (
-                            <p className="text-text-muted text-sm mb-2">{task.description}</p>
+                            <p style={{
+                              color: '#a3a3a3',
+                              fontSize: '0.875rem',
+                              marginBottom: '0.5rem'
+                            }}>{task.description}</p>
                           )}
                         </div>
-                        <div className={`px-3 py-1 rounded-full text-sm font-bold ${getProductivityColor({ overallProductivity: task.completionPercentage } as DayRecord)} text-white`}>
+                        <div style={{
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.875rem',
+                          fontWeight: 'bold',
+                          color: '#ffffff',
+                          background: task.completionPercentage >= 80
+                            ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)'
+                            : task.completionPercentage >= 50
+                            ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)'
+                            : 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)'
+                        }}>
                           {task.completionPercentage}%
                         </div>
                       </div>
                       
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm text-text-muted">
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          fontSize: '0.875rem',
+                          color: '#a3a3a3'
+                        }}>
                           <span>Progress</span>
                           <span>{task.completedItems} of {task.totalItems} items</span>
                         </div>
                         
-                        <div className="w-full bg-bg-quaternary rounded-full h-2">
+                        <div style={{
+                          width: '100%',
+                          background: 'linear-gradient(135deg, #333333 0%, #404040 100%)',
+                          borderRadius: '9999px',
+                          height: '0.5rem'
+                        }}>
                           <div
-                            className={`h-2 rounded-full transition-all duration-300 ${getProductivityColor({ overallProductivity: task.completionPercentage } as DayRecord)}`}
-                            style={{ width: `${task.completionPercentage}%` }}
+                            style={{
+                              height: '0.5rem',
+                              borderRadius: '9999px',
+                              transition: 'width 0.3s ease',
+                              width: `${task.completionPercentage}%`,
+                              background: task.completionPercentage >= 80
+                                ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)'
+                                : task.completionPercentage >= 50
+                                ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)'
+                                : 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)'
+                            }}
                           ></div>
                         </div>
                         
                         {task.note && (
-                          <div className="mt-3 p-3 bg-bg-quaternary rounded-lg">
-                            <p className="text-xs font-medium text-accent mb-1">Note</p>
-                            <p className="text-text-secondary text-sm">{task.note}</p>
+                          <div style={{
+                            marginTop: '0.75rem',
+                            padding: '0.75rem',
+                            background: 'linear-gradient(135deg, #333333 0%, #404040 100%)',
+                            borderRadius: '0.5rem'
+                          }}>
+                            <p style={{
+                              fontSize: '0.75rem',
+                              fontWeight: '500',
+                              color: '#6366f1',
+                              marginBottom: '0.25rem'
+                            }}>Note</p>
+                            <p style={{
+                              color: '#e5e5e5',
+                              fontSize: '0.875rem'
+                            }}>{task.note}</p>
                           </div>
                         )}
                         
-                        <div className="flex items-center justify-between text-xs text-text-subtle">
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          fontSize: '0.75rem',
+                          color: '#737373'
+                        }}>
                           <span>Status: {task.isCompleted ? '✅ Completed' : '⏳ In Progress'}</span>
                           <span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
                         </div>
@@ -356,24 +722,56 @@ const Calendar: React.FC<CalendarProps> = ({ userId = null, username = null }) =
                   ))}
                   
                   {/* Summary Stats */}
-                  <div className="mt-6 p-4 bg-bg-tertiary rounded-lg border border-border-secondary">
-                    <h4 className="text-lg font-semibold text-text-primary mb-3">Day Summary</h4>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div style={{
+                    marginTop: '1.5rem',
+                    padding: '1rem',
+                    background: 'linear-gradient(135deg, #262626 0%, #333333 100%)',
+                    borderRadius: '0.5rem',
+                    border: '1px solid #525252'
+                  }}>
+                    <h4 style={{
+                      fontSize: '1.125rem',
+                      fontWeight: '600',
+                      color: '#ffffff',
+                      marginBottom: '0.75rem'
+                    }}>Day Summary</h4>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                      gap: '1rem',
+                      fontSize: '0.875rem'
+                    }}>
                       <div>
-                        <span className="text-text-muted">Total Tasks:</span>
-                        <span className="ml-2 font-semibold text-text-primary">{selectedDayTasks.length}</span>
+                        <span style={{ color: '#a3a3a3' }}>Total Tasks:</span>
+                        <span style={{
+                          marginLeft: '0.5rem',
+                          fontWeight: '600',
+                          color: '#ffffff'
+                        }}>{selectedDayTasks.length}</span>
                       </div>
                       <div>
-                        <span className="text-text-muted">Completed:</span>
-                        <span className="ml-2 font-semibold text-productive">{selectedDayTasks.filter(t => t.isCompleted).length}</span>
+                        <span style={{ color: '#a3a3a3' }}>Completed:</span>
+                        <span style={{
+                          marginLeft: '0.5rem',
+                          fontWeight: '600',
+                          color: '#059669'
+                        }}>{selectedDayTasks.filter(t => t.isCompleted).length}</span>
                       </div>
                       <div>
-                        <span className="text-text-muted">In Progress:</span>
-                        <span className="ml-2 font-semibold text-moderate">{selectedDayTasks.filter(t => !t.isCompleted).length}</span>
+                        <span style={{ color: '#a3a3a3' }}>In Progress:</span>
+                        <span style={{
+                          marginLeft: '0.5rem',
+                          fontWeight: '600',
+                          color: '#d97706'
+                        }}>{selectedDayTasks.filter(t => !t.isCompleted).length}</span>
                       </div>
                       <div>
-                        <span className="text-text-muted">Avg. Progress:</span>
-                        <span className="ml-2 font-semibold text-text-primary">
+                        <span style={{ color: '#a3a3a3' }}>Avg. Progress:</span>
+                        <span style={{
+                          marginLeft: '0.5rem',
+                          fontWeight: '600',
+                          color: '#ffffff'
+                        }}>
                           {Math.round(selectedDayTasks.reduce((acc, task) => acc + task.completionPercentage, 0) / selectedDayTasks.length)}%
                         </span>
                       </div>
