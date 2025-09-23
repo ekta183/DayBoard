@@ -4,7 +4,7 @@ const User = require('../models/User');
 
 const endDay = async (req, res) => {
   try {
-    const { date, summary } = req.body;
+    const { date, summary, overallProductivity, totalTasks, completedTasks } = req.body;
     const userId = req.user._id;
 
     const dayDate = new Date(date);
@@ -16,31 +16,33 @@ const endDay = async (req, res) => {
       return res.status(400).json({ message: 'Day has already been ended' });
     }
 
-    const tasks = await Task.find({
-      userId,
-      date: dayDate
-    });
-
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter(task => task.isCompleted).length;
-
     if (!dayRecord) {
       dayRecord = new DayRecord({
         userId,
         date: dayDate,
-        totalTasks,
-        completedTasks,
-        summary: summary || ''
+        totalTasks: totalTasks || 0,
+        completedTasks: completedTasks || 0,
+        summary: summary || '',
+        overallProductivity: overallProductivity || 0
       });
     } else {
-      dayRecord.totalTasks = totalTasks;
-      dayRecord.completedTasks = completedTasks;
+      dayRecord.totalTasks = totalTasks || 0;
+      dayRecord.completedTasks = completedTasks || 0;
       dayRecord.summary = summary || '';
+      dayRecord.overallProductivity = overallProductivity || 0;
+    }
+
+    // Set productivity label based on overall productivity
+    if (dayRecord.overallProductivity >= 80) {
+      dayRecord.productivityLabel = 'Productive';
+    } else if (dayRecord.overallProductivity >= 50) {
+      dayRecord.productivityLabel = 'Moderately Productive';
+    } else {
+      dayRecord.productivityLabel = 'Not Productive';
     }
 
     dayRecord.isEnded = true;
     dayRecord.endedAt = new Date();
-    await dayRecord.calculateProductivity();
 
     await dayRecord.save();
 

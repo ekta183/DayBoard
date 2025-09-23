@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://dayboard.onrender.com/api';
 
 const api = {
   async request(endpoint: string, options: RequestInit = {}) {
@@ -62,7 +62,7 @@ const api = {
   },
 
   dayRecords: {
-    endDay: (dayData: { date: string; summary: string }) => api.request('/day-records/end-day', {
+    endDay: (dayData: { date: string; summary: string; overallProductivity?: number; totalTasks?: number; completedTasks?: number }) => api.request('/day-records/end-day', {
       method: 'POST',
       body: JSON.stringify(dayData),
     }),

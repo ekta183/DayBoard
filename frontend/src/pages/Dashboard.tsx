@@ -42,11 +42,14 @@ const Dashboard = () => {
   const fetchDayRecord = async () => {
     try {
       const data = await api.dayRecords.getDay(selectedDate);
+      console.log('📅 Day Record API Response:', data);
       setDayRecord(data);
     } catch (error) {
+      console.log('📅 Day Record API Error:', error);
       if (error instanceof Error && error.message !== 'Day record not found') {
         console.error('Error fetching day record:', error);
       }
+      setDayRecord(null);
     }
   };
 
@@ -84,9 +87,15 @@ const Dashboard = () => {
   const handleEndDayConfirm = async () => {
     setEndDayLoading(true);
     try {
+      // Calculate all stats for the day
+      const stats = getProductivityStats();
+
       await api.dayRecords.endDay({
         date: selectedDate,
-        summary: ''
+        summary: '',
+        overallProductivity: stats.avgCompletion,
+        totalTasks: stats.totalTasks,
+        completedTasks: stats.completedTasks
       });
 
       // After ending the day, automatically move to the next day
@@ -139,6 +148,14 @@ const Dashboard = () => {
 
   const isToday = selectedDate === formatDateLocal(new Date());
   const isEndedDay = dayRecord?.isEnded;
+
+  // Debug logging
+  console.log('🔍 Dashboard State Debug:', {
+    selectedDate,
+    dayRecord,
+    isEndedDay,
+    isToday
+  });
 
   const getProductivityStats = () => {
     const totalTasks = tasks.length;

@@ -10,6 +10,12 @@ const formatDateLocal = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
+// Utility function to extract date part from database date string without timezone conversion
+const extractDateOnly = (dateString: string): string => {
+  // Extract only the date part (YYYY-MM-DD) directly from the ISO string
+  return dateString.split('T')[0];
+};
+
 interface CalendarProps {
   userId?: string | null;
   username?: string | null;
@@ -101,8 +107,9 @@ const Calendar: React.FC<CalendarProps> = ({ userId = null, username = null }) =
 
   const getDayRecord = (date: Date): DayRecord | undefined => {
     return dayRecords.find(record => {
-      const recordDate = new Date(record.date).toDateString();
-      return recordDate === date.toDateString();
+      const recordDateString = extractDateOnly(record.date);
+      const currentDateString = formatDateLocal(date);
+      return recordDateString === currentDateString;
     });
   };
 
