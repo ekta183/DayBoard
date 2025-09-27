@@ -18,7 +18,11 @@ const register = async (req, res) => {
         message: 'User with this email or username already exists' 
       });
     }
-
+    if(!password||password.length<6){
+      return res.status(400).json({
+        message:'Password length must be at least 6 characters'
+      });
+    };
     const user = await User.create({
       username,
       email,
